@@ -1,33 +1,33 @@
 package com.reactivemachinelearning
 
 import com.github.nscala_time.time.Imports._
-import org.apache.spark.ml.classification.{BinaryLogisticRegressionSummary, LogisticRegression, LogisticRegressionModel}
+import org.apache.spark.ml.classification.{BinaryLogisticRegressionSummary, LogisticRegression, LogisticRegressionModel, LogisticRegressionTrainingSummary}
 import org.apache.spark.ml.evaluation.BinaryClassificationEvaluator
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.max
 
 object Evaluation extends App {
 
 
-  val session = SparkSession.builder.appName("Fraud Model").getOrCreate()
+  val session: SparkSession = SparkSession.builder.appName("Fraud Model").getOrCreate()
   import session.implicits._
 
-  val data = session.read.format("libsvm").load("src/main/resources/sample_libsvm_data.txt")
+  val data: DataFrame = session.read.format("libsvm").load("src/main/resources/sample_libsvm_data.txt")
 
   val Array(trainingData, testingData) = data.randomSplit(Array(0.8, 0.2))
 
-  val learningAlgo = new LogisticRegression()
+  val learningAlgo: LogisticRegression = new LogisticRegression()
 
-  val model = learningAlgo.fit(trainingData)
+  val model: LogisticRegressionModel = learningAlgo.fit(trainingData)
 
   println(s"Model coefficients: ${model.coefficients} Model intercept: ${model.intercept}")
 
 
-  val trainingSummary = model.summary
+  val trainingSummary: LogisticRegressionTrainingSummary = model.summary
 
-  val binarySummary = trainingSummary.asInstanceOf[BinaryLogisticRegressionSummary]
+  val binarySummary: BinaryLogisticRegressionSummary = trainingSummary.asInstanceOf[BinaryLogisticRegressionSummary]
 
-  val roc = binarySummary.roc
+  val roc: DataFrame = binarySummary.roc
 
   roc.show()
 
@@ -36,37 +36,37 @@ object Evaluation extends App {
   def betterThanRandom(model: LogisticRegressionModel) = {
     val trainingSummary = model.summary
 
-    val binarySummary = trainingSummary.asInstanceOf[BinaryLogisticRegressionSummary]
+    val binarySummary: BinaryLogisticRegressionSummary = trainingSummary.asInstanceOf[BinaryLogisticRegressionSummary]
 
-    val auc = binarySummary.areaUnderROC
+    val auc: Double = binarySummary.areaUnderROC
 
     auc > 0.5
   }
 
   betterThanRandom(model)
 
-  val fMeasure = binarySummary.fMeasureByThreshold
+  val fMeasure: DataFrame = binarySummary.fMeasureByThreshold
 
-  val maxFMeasure = fMeasure.select(max("F-Measure")).head().getDouble(0)
+  val maxFMeasure: Double = fMeasure.select(max("F-Measure")).head().getDouble(0)
 
-  val bestThreshold = fMeasure.where($"F-Measure" === maxFMeasure)
+  val bestThreshold: Double = fMeasure.where($"F-Measure" === maxFMeasure)
     .select("threshold").head().getDouble(0)
 
   model.setThreshold(bestThreshold)
 
   // TODO see meaning of transform here - Transformer class? How does it happen?
-  val predictions = model.transform(testingData)
+  val predictions: DataFrame = model.transform(testingData)
 
   predictions.show(5)
 
-  val evaluator = new BinaryClassificationEvaluator()
+  val evaluator: BinaryClassificationEvaluator = new BinaryClassificationEvaluator()
     .setLabelCol("label")
     .setRawPredictionCol("rawPrediction")
     .setMetricName("areaUnderPR")
 
-  val areaUnderPR = evaluator.evaluate(predictions)
+  val areaUnderPR: Double = evaluator.evaluate(predictions)
 
-  def betterThanRandom(area: Double) = {
+  def betterThanRandom(area: Double): Boolean = {
     area > 0.5
   }
 

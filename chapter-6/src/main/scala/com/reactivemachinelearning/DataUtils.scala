@@ -21,9 +21,9 @@ object DataUtils extends App {
     hashValue < TrainingPercent
   }
 
-  val sampleTransaction = Transaction(123, 456, 789, DateTime.now(), 42.01)
+  val sampleTransaction: Transaction = Transaction(123, 456, 789, DateTime.now(), 42.01)
 
-  val datasetResult = trainingCustomer(sampleTransaction.customerId)
+  val datasetResult: Boolean = trainingCustomer(sampleTransaction.customerId)
 
   println(s"Is the sample transaction in the training set? $datasetResult")
 
