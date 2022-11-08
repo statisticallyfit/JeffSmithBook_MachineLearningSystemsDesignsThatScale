@@ -1,29 +1,29 @@
 package com.reactivemachinelearning
 
-import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.{Pipeline, PipelineModel}
 import org.apache.spark.ml.classification.{DecisionTreeClassificationModel, DecisionTreeClassifier, RandomForestClassificationModel, RandomForestClassifier}
-import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, StringIndexerModel, VectorIndexer, VectorIndexerModel}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object SparkPipeline extends App {
 
   val session = SparkSession.builder.appName("TimberPipeline").getOrCreate()
 
-  val instances = session.read.format("libsvm").load("/Users/jeff/Documents/Projects/reactive-machine-learning-systems/chapter-5/src/main/resources/match_data.libsvm")
+  val instances: DataFrame = session.read.format("libsvm").load("/Users/jeff/Documents/Projects/reactive-machine-learning-systems/chapter-5/src/main/resources/match_data.libsvm")
 
-  val labelIndexer = new StringIndexer()
+  val labelIndexer: StringIndexerModel = new StringIndexer()
     .setInputCol("label")
     .setOutputCol("indexedLabel")
-    .fit(instances)
+    .fit(instances) // sets the dataframe to process
 
-  val featureIndexer = new VectorIndexer()
+  val featureIndexer: VectorIndexerModel = new VectorIndexer()
     .setInputCol("features")
     .setOutputCol("indexedFeatures")
     .fit(instances)
 
   val Array(trainingData, testingData) = instances.randomSplit(Array(0.8, 0.2))
 
-  val decisionTree = new DecisionTreeClassifier()
+  val decisionTree: DecisionTreeClassifier = new DecisionTreeClassifier()
     .setLabelCol("indexedLabel")
     .setFeaturesCol("indexedFeatures")
 
@@ -32,30 +32,30 @@ object SparkPipeline extends App {
     .setOutputCol("predictedLabel")
     .setLabels(labelIndexer.labels)
 
-  val pipeline = new Pipeline()
+  val decisionTreePipeline = new Pipeline()
     .setStages(Array(labelIndexer, featureIndexer, decisionTree, labelConverter))
 
-  val model = pipeline.fit(trainingData)
+  val decisionTreeFit: PipelineModel = decisionTreePipeline.fit(trainingData)
 
-  val predictions = model.transform(testingData)
+  val predictions: DataFrame = decisionTreeFit.transform(testingData)
 
   predictions.select("predictedLabel", "label", "features").show(1)
 
-  val decisionTreeModel = model.stages(2)
+  val decisionTreeModel: DecisionTreeClassificationModel = decisionTreeFit.stages(2)
     .asInstanceOf[DecisionTreeClassificationModel]
 
   println(decisionTreeModel.toDebugString)
 
-  val randomForest = new RandomForestClassifier()
+  val randomForest: RandomForestClassifier = new RandomForestClassifier()
     .setLabelCol("indexedLabel")
     .setFeaturesCol("indexedFeatures")
 
-  val revisedPipeline = new Pipeline()
+  val randomForestPipeline: Pipeline = new Pipeline()
     .setStages(Array(labelIndexer, featureIndexer, randomForest, labelConverter))
 
-  val revisedModel = revisedPipeline.fit(trainingData)
+  val randomForestFit: PipelineModel = randomForestPipeline.fit(trainingData)
 
-  val randomForestModel = revisedModel.stages(2)
+  val randomForestModel: RandomForestClassificationModel = randomForestFit.stages(2)
     .asInstanceOf[RandomForestClassificationModel]
 
   println(randomForestModel.toDebugString)

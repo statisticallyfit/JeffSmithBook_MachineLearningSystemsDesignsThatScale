@@ -1,24 +1,26 @@
-*.class
-*.log
-*.sc
-
-# sbt specific
-.cache
+project/.boot/
+project/.sbtboot/
+project/.ivy/
+project/target
+project/project/
+target
+.idea
 .history
-.lib/
-dist/*
-target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
+.bsp/
+*/project
+*/target
 
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
 
-# IDEA specific
-*/.idea/*
+.metadata
+.cache-main
+.classpath
+.project
+.settings
+*.class
+*.orig
+*.log
 
-# Model files
-*/my-model/*
+.DS_Store
+*.iml
+scalastyle-output.xml
+

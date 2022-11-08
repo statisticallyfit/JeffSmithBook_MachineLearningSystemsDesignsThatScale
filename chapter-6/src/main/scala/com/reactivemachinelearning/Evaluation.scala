@@ -54,7 +54,7 @@ object Evaluation extends App {
 
   model.setThreshold(bestThreshold)
 
-
+  // TODO see meaning of transform here - Transformer class? How does it happen?
   val predictions = model.transform(testingData)
 
   predictions.show(5)
