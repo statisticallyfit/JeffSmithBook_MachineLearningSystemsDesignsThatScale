@@ -16,15 +16,16 @@ object DataUtils extends App {
 
   val TrainingPercent = 80
 
+  // Sifting function - determining if customer belongs in training set using the hashcode
   def trainingCustomer(id: CustomerId): Boolean = {
     val hashValue = id.hashCode() % 100
     hashValue < TrainingPercent
   }
 
   val sampleTransaction: Transaction = Transaction(123, 456, 789, DateTime.now(), 42.01)
+  println(s"sampleTransaction = $sampleTransaction")
 
   val datasetResult: Boolean = trainingCustomer(sampleTransaction.customerId)
-
   println(s"Is the sample transaction in the training set? $datasetResult")
 
 }
