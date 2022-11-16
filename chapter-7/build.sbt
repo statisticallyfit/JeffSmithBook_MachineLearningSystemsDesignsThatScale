@@ -1,5 +1,5 @@
-import sbtdocker.DockerPlugin
-import sbtdocker.immutable.Dockerfile
+//import sbtdocker.DockerPlugin
+//import sbtdocker.immutable.Dockerfile
 
 name := "chapter-7"
 
@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.10",
   "com.typesafe.akka" %% "akka-http-testkit" % "10.0.10")
 
+/***
 enablePlugins(DockerPlugin)
 
 dockerfile in docker := {
@@ -37,3 +38,4 @@ dockerfile in docker := {
     entryPoint("java", "-cp", classpathString, mainClass)
   }
 }
+***/

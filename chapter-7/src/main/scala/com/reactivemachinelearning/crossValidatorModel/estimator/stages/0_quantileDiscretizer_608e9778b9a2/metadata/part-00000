@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.QuantileDiscretizer","timestamp":1668095446934,"sparkVersion":"2.2.0","uid":"quantileDiscretizer_608e9778b9a2","paramMap":{"outputCol":"discretized","numBuckets":3,"inputCol":"seeds","relativeError":0.001,"handleInvalid":"error"}}
