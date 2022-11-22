@@ -2,22 +2,37 @@ package com.reactivemachinelearning
 
 import org.http4s._
 import org.http4s.EntityEncoder
-
 import org.http4s.dsl._
+// import org.http4s.argonaut._ // TODO trying jsonEncoderOf[Any] but not working to get that implicit value working (?)
+
 import scalaz.concurrent.Task
 
-//import cats.implicits._
+
 
 import scala.util.Random
 
 object Models extends App {
 
   // TODO HELP FIX why error here?
-  implicit val evEntityEnc: EntityEncoder[Any] = implicitly[EntityEncoder[Any]]
+  implicit val evEntityEnc: EntityEncoder[Response] = implicitly[EntityEncoder[Response]](EntityEncoder.apply)
+
+  // Source of code = https://hyp.is/SYhIbGg7Ee2vp0tKmxNo6w/gitter.im/http4s/http4s?at=588b57ef4c04e9a44e3a1c3b
+  /*import org.http4s.circe._
+  implicit val responseEncoder: Encoder[Response] = Encoder.forProduct1("response-temp")(u => "empty")
+  implicit val responseDecoder: Decoder[Response] = Decoder.forProduct1("response-temp")(Response.apply)
+  implicit val responseEntityEncoder: EntityEncoder[Response] = jsonEncoderOf[Response]
+  implicit val responseEntityDecoder: EntityDecoder[Response] = jsonOf[Response]*/
+
+    //jsonEncoderOf[Any]
+    //implicitly[EntityEncoder[Any]]
 
   // TODO where is input data?
   // Defines a model as an HTTP service
-  val modelA: Task[Response] = HttpService {
+
+  val something = HttpService { case GET -> Root / "a" / data => {val resp = true; Ok(s"something")}}
+
+  val modelA = HttpService {
+
     // Uses pattern-matching to determine that the request to modelA has been received.
     case GET -> Root / "a" / inputData => {
       // Always responds true for model A
@@ -36,7 +51,10 @@ object Models extends App {
 
   val modelB: Task[Response] = HttpService {
     case GET -> Root / "b" / inputData =>
+
+      // Always return false for modelB
       val response: Boolean = false
+
       Ok(s"Model B predicted $response.")
   }
 
