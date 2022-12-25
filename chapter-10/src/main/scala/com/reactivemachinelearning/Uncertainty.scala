@@ -19,3 +19,9 @@ object Uncertainty {
   }
 
 }
+
+
+object UncertaintyTester extends App {
+
+  assert(true)
+}

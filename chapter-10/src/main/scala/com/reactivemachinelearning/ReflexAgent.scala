@@ -7,3 +7,11 @@ object ReflexAgent {
   }
 
 }
+
+
+object ReflexAgentTester extends App {
+
+  assert(ReflexAgent.doYouLike("honey") == true)
+  assert(ReflexAgent.doYouLike("any other thing") == false)
+
+}
