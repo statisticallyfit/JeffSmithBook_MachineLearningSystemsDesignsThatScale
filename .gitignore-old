@@ -1,32 +1,14 @@
-project/*
-project
-
 project/.boot/
-project/.boot/*
-
 project/.sbtboot/
-project/.sbtboot/*
-
-project/.ivy/*
 project/.ivy/
-
 project/target
-project/target/*
-
-project/project/*
 project/project/
-
-
-
 target
-target/*
-
 .idea
-.idea/
-.idea/*
-
 .history
 .bsp/
+*/project
+*/target
 
 
 .metadata
@@ -41,3 +23,4 @@ target/*
 .DS_Store
 *.iml
 scalastyle-output.xml
+
